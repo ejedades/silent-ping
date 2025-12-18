@@ -1,22 +1,51 @@
-import { invoke } from "@tauri-apps/api/core";
+import { invoke } from '@tauri-apps/api/core';
 
-let greetInputEl: HTMLInputElement | null;
-let greetMsgEl: HTMLElement | null;
+const toggleBtn = document.getElementById('toggle-btn') as HTMLButtonElement;
+const btnText = document.getElementById('btn-text') as HTMLSpanElement;
+const statusText = document.getElementById('status-text') as HTMLParagraphElement;
 
-async function greet() {
-  if (greetMsgEl && greetInputEl) {
-    // Learn more about Tauri commands at https://tauri.app/develop/calling-rust/
-    greetMsgEl.textContent = await invoke("greet", {
-      name: greetInputEl.value,
-    });
+let isActive = false;
+
+// Update status UI
+function updateStatusUI() {
+  if (isActive) {
+    statusText.textContent = 'Active';
+    statusText.classList.remove('inactive');
+    statusText.classList.add('active');
+    btnText.textContent = 'Disable';
+  } else {
+    statusText.textContent = 'Inactive';
+    statusText.classList.remove('active');
+    statusText.classList.add('inactive');
+    btnText.textContent = 'Enable';
   }
 }
 
-window.addEventListener("DOMContentLoaded", () => {
-  greetInputEl = document.querySelector("#greet-input");
-  greetMsgEl = document.querySelector("#greet-msg");
-  document.querySelector("#greet-form")?.addEventListener("submit", (e) => {
-    e.preventDefault();
-    greet();
-  });
+// Check initial state from Rust
+async function checkInitialState() {
+  try {
+    isActive = await invoke<boolean>('is_playing');
+    updateStatusUI();
+  } catch (err) {
+    console.error('Failed to get initial audio state:', err);
+  }
+}
+
+// Toggle button click handler
+toggleBtn.addEventListener('click', async () => {
+  try {
+    if (!isActive) {
+      await invoke('start_audio');
+      isActive = true;
+    } else {
+      await invoke('stop_audio');
+      isActive = false;
+    }
+    updateStatusUI();
+  } catch (err) {
+    console.error('Failed to toggle audio:', err);
+  }
 });
+
+// Initialize
+checkInitialState();

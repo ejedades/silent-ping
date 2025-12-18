@@ -1,34 +1,35 @@
-<!doctype html>
+<!DOCTYPE html>
 <html lang="en">
   <head>
     <meta charset="UTF-8" />
-    <link rel="stylesheet" href="/src/styles.css" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>SilentPing</title>
+    <link rel="stylesheet" href="/src/styles.css" />
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap" rel="stylesheet">
   </head>
   <body>
-    <div class="container">
-      <div class="header">
-        <h1>🎧 SilentPing</h1>
-        <p class="subtitle">Keep your audio devices awake</p>
-      </div>
+    <div class="app-content">
+      <header class="app-header">
+        <h1>SilentPing</h1>
+        <p class="subtitle">Keep audio devices awake</p>
+      </header>
 
-      <div class="status-card">
-        <div class="status-label">Status:</div>
-        <div id="status" class="status inactive">Inactive</div>
-      </div>
+      <button id="toggle-btn" class="btn">
+        <span id="btn-text">Enable</span>
+      </button>
 
-      <button id="toggle-btn" class="btn btn-success">Enable</button>
+      <p id="status-text" class="status-text inactive">Inactive</p>
 
-      <div class="info">
-        <p>⚡ Prevents headsets from auto-sleeping</p>
-        <p>🔇 Plays silent audio in background</p>
-        <p>📍 Minimizes to system tray</p>
-      </div>
+      <section class="info">
+        <p>Prevents audio devices from sleeping</p>
+        <p>Runs silently in the background</p>
+      </section>
 
-      <div class="footer">
-        <p class="warning">⚠️ Battery usage will increase while active</p>
-      </div>
+      <footer class="app-footer">
+        <p class="warning">Active mode may increase battery usage</p>
+      </footer>
     </div>
 
     <script type="module" src="/src/main.ts"></script>
