@@ -2,7 +2,7 @@
 name = "silent-ping"
 version = "0.1.0"
 description = "A Tauri App"
-authors = ["you"]
+authors = ["ejedades"]
 edition = "2021"
 
 [build-dependencies]

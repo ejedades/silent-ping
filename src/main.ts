@@ -3,6 +3,7 @@ import { invoke } from '@tauri-apps/api/core';
 const toggleBtn = document.getElementById('toggle-btn') as HTMLButtonElement;
 const btnText = document.getElementById('btn-text') as HTMLSpanElement;
 const statusText = document.getElementById('status-text') as HTMLParagraphElement;
+const gradient = document.getElementById('top-gradient') as HTMLDivElement;
 
 let isActive = false;
 
@@ -13,11 +14,15 @@ function updateStatusUI() {
     statusText.classList.remove('inactive');
     statusText.classList.add('active');
     btnText.textContent = 'Disable';
+    gradient.classList.remove('inactive');
+    gradient.classList.add('active');
   } else {
     statusText.textContent = 'Inactive';
     statusText.classList.remove('active');
     statusText.classList.add('inactive');
     btnText.textContent = 'Enable';
+    gradient.classList.remove('active');
+    gradient.classList.add('inactive');
   }
 }
 

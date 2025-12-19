@@ -15,7 +15,6 @@ body {
   min-height: 100vh;
 }
 
-/* App content - no box, fills window */
 .app-content {
   display: flex;
   flex-direction: column;
@@ -23,6 +22,66 @@ body {
   text-align: center;
   width: 360px;
 }
+
+.top-gradient {
+  position: absolute;
+  top: 0;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 500px;
+  height: 150px;
+  border-radius: 0 0 50% 50%;
+  background: radial-gradient(
+    ellipse at top center, 
+    rgba(22, 163, 74, 0.6) 0%, 
+    rgba(22, 163, 74, 0.0) 70% 
+  );
+  pointer-events: none;
+  z-index: 0;
+  transition: background 0.4s ease;
+}
+
+/* Inactive state */
+.top-gradient.inactive {
+  background: radial-gradient(
+    ellipse at top center,
+    rgba(220, 38, 38, 0.6) 0%,
+    rgba(220, 38, 38, 0.0) 70%
+  );
+}
+
+/* Active state */
+.top-gradient.active {
+  background: radial-gradient(
+    ellipse at top center,
+    rgba(22, 163, 74, 0.6) 0%,
+    rgba(22, 163, 74, 0.0) 70%
+  );
+}
+
+
+.app-content {
+  position: relative;
+  z-index: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 24px;
+  text-align: center;
+  padding-top: 60px;
+}
+
+
+.app-content {
+  position: relative;
+  z-index: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 24px;
+  text-align: center;
+  width: 360px;
+  margin-top: 20px;
+}
+
 
 /* Header */
 .app-header h1 {
@@ -71,11 +130,11 @@ body {
 }
 
 .status-text.active {
-  color: #16a34a; /* green */
+  color: #16a34a;
 }
 
 .status-text.inactive {
-  color: #dc2626; /* red */
+  color: #dc2626;
 }
 
 /* Info section */
@@ -90,3 +149,5 @@ body {
   font-size: 0.8rem;
   color: #dc2626;
 }
+
+

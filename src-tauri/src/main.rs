@@ -1,4 +1,3 @@
-// Prevents additional console window on Windows in release builds
 #![cfg_attr(not(debug_assertions), windows_subsystem = "windows")]
 
 mod audio;
@@ -18,7 +17,7 @@ enum AudioCommand {
     IsPlaying(Sender<bool>),
 }
 
-/// Global application state (Send + Sync safe)
+/// Global application state
 struct AppState {
     audio_tx: Sender<AudioCommand>,
 }
@@ -63,9 +62,7 @@ fn create_tray(app: &AppHandle) -> Result<(), Box<dyn std::error::Error>> {
                     let _ = window.set_focus();
                 }
             }
-            "quit" => {
-                std::process::exit(0);
-            }
+            "quit" => std::process::exit(0),
             _ => {}
         })
         .on_tray_icon_event(|tray, event| {
@@ -75,8 +72,7 @@ fn create_tray(app: &AppHandle) -> Result<(), Box<dyn std::error::Error>> {
                 ..
             } = event
             {
-                let app = tray.app_handle();
-                if let Some(window) = app.get_webview_window("main") {
+                if let Some(window) = tray.app_handle().get_webview_window("main") {
                     let _ = window.show();
                     let _ = window.set_focus();
                 }
@@ -94,9 +90,8 @@ pub fn run() {
         .setup(|app| {
             create_tray(app.handle())?;
 
-            // Audio thread
+            // Create audio thread and channel
             let (tx, rx) = mpsc::channel::<AudioCommand>();
-
             std::thread::spawn(move || {
                 let mut player = SilentAudioPlayer::new();
 
@@ -119,11 +114,7 @@ pub fn run() {
 
             Ok(())
         })
-        .invoke_handler(tauri::generate_handler![
-            start_audio,
-            stop_audio,
-            is_playing
-        ])
+        .invoke_handler(tauri::generate_handler![start_audio, stop_audio, is_playing])
         .on_window_event(|window, event| {
             if let tauri::WindowEvent::CloseRequested { api, .. } = event {
                 let _ = window.hide();

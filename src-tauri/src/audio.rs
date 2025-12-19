@@ -1,97 +1,57 @@
-use rodio::{OutputStream, Sink, Source};
+use std::thread;
 use std::time::Duration;
+use rodio::{OutputStream, Sink, source::SineWave, Source};
 
 pub struct SilentAudioPlayer {
-    sink: Option<Sink>,
     _stream: Option<OutputStream>,
-    is_playing: bool,
+    is_running: bool,
 }
 
 impl SilentAudioPlayer {
     pub fn new() -> Self {
         Self {
-            sink: None,
             _stream: None,
-            is_playing: false,
+            is_running: false,
         }
     }
 
     pub fn start(&mut self) -> Result<(), String> {
-        if self.is_playing {
-            return Ok(());
+        if self.is_running {
+            return Ok(()); // already running
         }
 
         let (stream, stream_handle) = OutputStream::try_default()
             .map_err(|e| format!("Failed to create audio stream: {e}"))?;
-
-        let sink = Sink::try_new(&stream_handle)
-            .map_err(|e| format!("Failed to create sink: {e}"))?;
-
-        sink.append(SilentSource::new());
-        sink.set_volume(0.0);
-
         self._stream = Some(stream);
-        self.sink = Some(sink);
-        self.is_playing = true;
+
+        self.is_running = true;
+
+        // Spawn a thread to periodically play short bursts
+        let handle = stream_handle.clone();
+        thread::spawn(move || {
+            loop {
+                // Each burst: 2 seconds of 15Hz sine wave, very low amplitude
+                let sink = Sink::try_new(&handle).unwrap();
+                let source = SineWave::new(15.0)
+                    .amplify(0.001) // extremely low volume
+                    .take_duration(Duration::from_secs(2));
+                sink.append(source);
+                sink.sleep_until_end();
+
+                // Wait 5 minutes before next burst
+                thread::sleep(Duration::from_secs(5 * 60));
+            }
+        });
 
         Ok(())
     }
 
     pub fn stop(&mut self) {
-        if !self.is_playing {
-            return;
-        }
-
-        if let Some(sink) = self.sink.take() {
-            sink.stop();
-        }
-
-        self._stream = None;
-        self.is_playing = false;
+        self.is_running = false;
+        self._stream = None; // drops the stream, stops all audio
     }
 
     pub fn is_playing(&self) -> bool {
-        self.is_playing
-    }
-}
-
-/// Silent audio source — infinite silence
-struct SilentSource {
-    sample_rate: u32,
-    channels: u16,
-}
-
-impl SilentSource {
-    fn new() -> Self {
-        Self {
-            sample_rate: 48_000,
-            channels: 2,
-        }
-    }
-}
-
-impl Iterator for SilentSource {
-    type Item = f32;
-
-    fn next(&mut self) -> Option<Self::Item> {
-        Some(0.0)
-    }
-}
-
-impl Source for SilentSource {
-    fn current_frame_len(&self) -> Option<usize> {
-        None
-    }
-
-    fn channels(&self) -> u16 {
-        self.channels
-    }
-
-    fn sample_rate(&self) -> u32 {
-        self.sample_rate
-    }
-
-    fn total_duration(&self) -> Option<Duration> {
-        None
+        self.is_running
     }
 }
